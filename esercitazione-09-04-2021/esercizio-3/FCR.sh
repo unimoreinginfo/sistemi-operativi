@@ -1,29 +1,36 @@
-#!/bin/bash
-cd $1
+#!/bin/sh
 
-echo "== cartella corrente: $1"
+# FCR.sh <path> <X>
 
-found=
+# $1 path assoluto
+# $2 <X>
 
-for f in *
-    do
-        if [[ -d $f && -x $f ]]
-            then 
-            echo "> trovata cartella attraversabile $f"
-            FCR.sh $(pwd)/$f $2
-        
-        elif [[ -f $f && -r $f ]]
-            then 
-            lines=$(wc -l < $f)
-            if [[ $lines -eq $2 ]]
-                then 
-                echo "il file $f ha le linee richieste"
-                echo "nella directory: " $(pwd)
-                echo "$found $(pwd)/$f" >> ~/.config/duglerio/togle
-                
-            fi
+# file tmp per salvarsi i file trovati
+FILES_TMP="/tmp/17apr15_files"
 
-        fi
-done 
+if ! test -e $FILES_TMP
+then
+  touch $FILES_TMP
+fi
 
-exit 0
+for f in $1/*
+do
+  #echo "chiamando: $f"
+
+  if test -d $f
+  then
+    sh FCR.sh $f $2
+  else
+    if test -f $f -a -r $f
+    then
+      OCC=`cat "$f" | grep -E "t$" | wc -l`
+      echo "$f ha $OCC t finali"
+
+      if test $OCC -ge $2
+      then
+        #echo "$f soddisfa"
+        echo "$f" >> "$FILES_TMP"
+      fi
+    fi
+  fi
+done
