@@ -35,22 +35,23 @@ int main(int argc, char** argv){
             exit(3);
 
         }else if(pid == 0){
-
-            char* formatted = sprintf("%s.sort", argv[i]);
-            creat(formatted, O_RDONLY);
             
+            char* formatted;
+            sprintf(formatted, "./%s.sort", argv[i]);
+            printf("%s\n", formatted);
             pid_t n_pid;
+            
             if((n_pid = fork()) < 0){
                 printf("errore durante la creazione di un processo nipote");
                 exit(4);
             }else if(n_pid == 0){
                 
-                // nipote 
+                // nipote
                 close(1);
-                open("/dev/null", O_WRONLY);
-                close(2);
-                open("/dev/null", O_WRONLY);
-                execlp("sort", "sort", argv[i], (char*) 0);
+                open(formatted, O_WRONLY | O_CREAT, 0644); 
+                close(0);
+                open(argv[i], O_RDONLY);
+                execlp("sort", "sort", (char*) 0);
 
                 exit(-1);
 
