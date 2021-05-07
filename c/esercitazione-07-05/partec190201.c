@@ -37,16 +37,13 @@ int main (int argc, char **argv)
         { /* figlio */
 
             close(alpha_piped[0]); // chiude la pipe in lettura
-            close(digit_piped[0]); // chiude la pipe in lettura
+            close(digit_piped[0]);
 
             int f = open(argv[i], O_RDONLY, 0644);
             if (f < 0) {
                 printf("Errore durante l'apertura del file: %s\n", argv[i]);
                 exit(3);
             }
-
-            if (i % 2 == 0) { close(alpha_piped[1]); }
-            if (i % 2 != 0) { close(digit_piped[1]); }
 
             char c;
             while (read(f, &c, sizeof(char)) > 0)
@@ -65,14 +62,21 @@ int main (int argc, char **argv)
     }
 
     close(alpha_piped[1]); // chiude la pipe in scrittura
-    close(digit_piped[1]); // chiude la pipe in scrittura
+    close(digit_piped[1]);
 
     char alpha, digit;
     int ret_alpha, ret_digit;
 
-    while ((ret_alpha = read(alpha_piped[0], &alpha, sizeof(char))) > 0 || (ret_digit = read(digit_piped[0], &digit, sizeof(char))) > 0)
+    while (1)
     {
-        if (ret_alpha > 0) printf("carattere: %c\n", alpha);
-        if (ret_digit > 0) printf("digit: %c\n", digit);
+        ret_alpha = read(alpha_piped[0], &alpha, sizeof(char));
+        ret_digit = read(digit_piped[0], &digit, sizeof(char));
+
+        if (ret_alpha <= 0 && ret_digit <= 0) {
+            break;
+        }
+
+        if (ret_alpha > 0) { printf("carattere: %c\n", alpha); }
+        if (ret_digit > 0) { printf("digit: %c\n", digit); }
     }
 }
