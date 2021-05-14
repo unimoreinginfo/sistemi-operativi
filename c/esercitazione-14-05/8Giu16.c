@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
     if (argc < 5) {
         printf("Sintassi errata: %s <F0> <F1> <F2> <F3> ... <H>\n", argv[0]);
-        exit(0);
+        exit(1);
     }
 
     argv++;
@@ -36,13 +36,13 @@ int main(int argc, char* argv[])
     int H = atoi(argv[argc - 1]);
     if (H == 0 || H >= 255) {
         printf("H dev'essere un numero intero strettamente positivo < 255\n");
-        exit(1);
+        exit(2);
     }
 
     int Fcreato = open("/tmp/creato", O_CREAT | O_WRONLY | O_APPEND | O_TRUNC, 0644);
     if (Fcreato < 0) {
         printf("Creazione file temporaneo fallita\n");
-        exit(2);
+        exit(3);
     } 
  
     int N = argc - 1;
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     {
         if (pipe(child_to_parent_pipe[i]) < 0 || pipe(parent_to_child_pipe[i]) < 0) {
             printf("Creazione pipe fallita\n");
-            exit(3);
+            exit(4);
         }
     }
 
