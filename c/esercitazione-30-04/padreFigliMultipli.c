@@ -47,18 +47,6 @@ int main(int argc, char** argv){
 
     }
 
-    /*if((child_pid = wait(&status)) < 0){
-            printf("errore in wait");
-            exit(2);
-        }
-        
-        if(child_pid == pid){
-
-            char low = (status >> 8) & 0xff;
-            printf("indice: %d, pid: %d\n", low, child_pid);
-            
-        }*/
-
     exit(0);
     
 }
