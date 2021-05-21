@@ -20,12 +20,18 @@ int main(int argc, char** argv){
     long int sum = 0;
     pipe_t *big_pipe = malloc(sizeof(pipe_t) * (argc - 1));
 
+    if(!big_pipe){
+        printf("errore malloc");
+        exit(2);
+    }
+
     for(int i = 0; i < argc - 1; i++){
 
         if(pipe(big_pipe[i]) < 0){
             printf("errore nella creazione di big_pipe\n");
             exit(2);
         }
+        
     }
     
     for(int k = 0; k < argc - 1; k++){
@@ -34,7 +40,7 @@ int main(int argc, char** argv){
         if((pid = fork()) < 0){
 
             printf("fork fallita\n");
-            exit(2);
+            exit(3);
 
         }
         if(pid == 0){
@@ -70,12 +76,15 @@ int main(int argc, char** argv){
             if(nep_pid == 0){
                 
                 close(piped[0]); // lato lettura
-                
+                close(big_pipe[k][1]);
+
                 close(1);
                 dup(piped[1]);
+                close(piped[1]);
 
                 close(0);
                 int fd = open(filename, O_RDONLY);
+                if(fd < 0) exit(-1);
                 
                 execlp("wc", "wc", "-l", (char*) 0);
 
@@ -86,11 +95,6 @@ int main(int argc, char** argv){
                 char lines[128];
                 int i = 0, child_status;
                 close(piped[1]); // lato scrittura chiuso su figlio
-
-                if((nep_pid = wait(&child_status)) < 0){
-                    printf("errore in wait");
-                    exit(4);
-                }
                 
                 while(1){
 
@@ -107,9 +111,16 @@ int main(int argc, char** argv){
                     i++;
                     
                 }
+    
+                int res = atoi(lines);
+                write(big_pipe[k][1], &res, sizeof(int));
 
-                long int res = atoi(lines);
-                write(big_pipe[k][1], &res, sizeof(long int));
+                if((nep_pid = wait(&child_status)) < 0){
+                    printf("errore in wait");
+                    exit(4);
+                }
+
+                // printf("%d", child_status);
 
                 exit(child_status);
 
@@ -123,10 +134,10 @@ int main(int argc, char** argv){
 
     for(int i = 0; i < argc - 1; i++){
 
-        long int item;
-        read(big_pipe[i][0], &item, sizeof(long int));    
+        int item;
+        read(big_pipe[i][0], &item, sizeof(int));    
 
-        final_sum += item;
+        final_sum += (long int) item;
 
     }
 
@@ -141,6 +152,11 @@ int main(int argc, char** argv){
 
         }
 
+        if(status < 0){
+            printf("errore nel pid %d (%d)\n", child_pid, status);
+            continue;
+        }
+        
         printf("pid %d ha ritornato %d\n", child_pid, status);
 
     }
