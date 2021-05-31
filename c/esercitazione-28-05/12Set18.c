@@ -141,6 +141,13 @@ int main(int argc, char** argv){
 
     for(int i = 0; i < N; i++){
 
+        close(pipes[i][1]);
+        close(nep_pipes[i][1]);
+
+    }
+
+    for(int i = 0; i < N; i++){
+
         long int child_read, nep_read;
         read(pipes[i][0], &child_read, sizeof(long int));
         read(nep_pipes[i][0], &nep_read, sizeof(long int));
