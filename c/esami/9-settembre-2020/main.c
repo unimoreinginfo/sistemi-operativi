@@ -45,17 +45,6 @@ int main(int argc, char** argv){
 
     }
 
-    for(int i = 0; i < Q; i++){
-
-        if(pipe(pipes[i]) != 0){
-
-            printf("errore durante la generazione delle pipes");
-            exit(2);
-
-        }
-
-    }
-
     for(int q = 0; q < Q; q++){
 
         char associated_char = argv[3 + q][0];
