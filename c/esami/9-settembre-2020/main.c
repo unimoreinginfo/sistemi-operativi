@@ -23,8 +23,9 @@ int main(int argc, char** argv){
     signal(SIGUSR2, h2);
 
     int params = argc - 1;
+    char sync = 'x';
     
-    if(params < 5){
+    if(params < 4){
 
         printf("ci devono essere almeno 4 parametri");
         exit(1);
@@ -32,6 +33,16 @@ int main(int argc, char** argv){
     }
 
     int Q = params - 2;
+
+    piped_t* pipes = malloc(sizeof(piped_t) * Q);
+    for(int i = 0; i < Q; i++){
+
+        if(pipe(pipes[i]) != 0){
+            printf("errore in pipe");
+            exit(1);
+        }
+
+    }
 
     char* F = argv[1];
     int L = atoi(argv[2]);
@@ -60,7 +71,14 @@ int main(int argc, char** argv){
         children[q] = P;
 
         if(P == 0){
+            
+            for(int i = 0; i < Q; i++){
 
+                close(pipes[i][0]);
+                if(i != q) { close(pipes[i][0]); }
+
+            }
+            
             int file = open(F, O_RDONLY);
             if(file < 0){
                 printf("errore durante l'apertura del file %s\n", F);
@@ -83,6 +101,7 @@ int main(int argc, char** argv){
 
                     // letta una linea intera
                     last_occ = occ;
+                    write(pipes[q][1], &sync, sizeof(char));
                     pause();
                     printf("%d occorrenza/e del carattere '%c'\n", occ, associated_char);
                     kill(parent, SIGUSR2);
@@ -106,6 +125,7 @@ int main(int argc, char** argv){
 
         for(int q = 0; q < Q; q++){
 
+            read(pipes[q][0], &sync, sizeof(char));
             kill(children[q], SIGUSR1);
             pause();
 
