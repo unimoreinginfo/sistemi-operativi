@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.twig": "html",
-        "fcntl.h": "c",
-        "unistd.h": "c"
-    }
-}
