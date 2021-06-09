@@ -57,7 +57,7 @@ int main(int argc, char** argv){
             char* F = argv[q + 1],
             line[255];
             char buf, sync_token;
-            int file = open(F, O_RDONLY), current_index = 0, numeric_chars = 0, line_index = 1, last_line, first_time = 1;
+            int file = open(F, O_RDONLY), current_index = 0, numeric_chars = 0, line_index = 1, last_line;
 
             while(read(file, &buf, sizeof(char)) > 0){
 
